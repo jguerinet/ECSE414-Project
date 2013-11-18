@@ -22,7 +22,7 @@ import java.util.Enumeration;
 import java.util.logging.*;
 
 public class DiscoveryTestDemo implements Runnable {
-	public static final int LOCAL_PORT = 8000;
+	public static final int LOCAL_PORT = 0;
 
     InetAddress iaddress;
 	int port;
@@ -48,8 +48,6 @@ public class DiscoveryTestDemo implements Runnable {
             DiscoveryInfo externalInfo = test.test();
             System.out.println(externalInfo );
 
-            DatagramSocket senderSocket = new DatagramSocket(LOCAL_PORT, InetAddress.getLocalHost());
-
             System.out.println("My External IP: " + externalInfo.getPublicIP());
             System.out.println("My External Port: " + Integer.toString(externalInfo.getPublicPort()));
 
@@ -59,6 +57,8 @@ public class DiscoveryTestDemo implements Runnable {
 
             System.out.print("Client Port: ");
             String destinationPort = br.readLine();
+
+            DatagramSocket senderSocket = new DatagramSocket(externalInfo.getPublicPort(), InetAddress.getLocalHost());
 
             String sentData = "SNEDER";
 
