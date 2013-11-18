@@ -36,37 +36,34 @@ var natPort;
 var natHost;
 
 client.on("response",function(socket) {
-	console.log("STUN RESPONSE");
-	console.log(socket);
-	console.log("Peer Address:");
-	var i = readline.createInterface(
+
+	var reader = readline.createInterface(
               process.stdin, 
               process.stdout, null);
-	var input = "";
-      i.input.on('data', function (data){
-        if (data!="\r" && data!="\n") {
-	        input+=data;
-        }else {
-          if(natHost){
-			var b = new Buffer(input);
-			natPort = input;
-			console.log("Calling nat-traversal with Host: " + natHost + " Port: " + natPort);
 
+	var externalIP = "";
+	var externalPort = "";
+	reader.question("External IP:",function(answer){
+		externalIP = answer;
+		//console.log(answer);
+
+		reader.question("External Port:",function(answer){
+			externalPort = answer;
+			//console.log(answer);
+
+
+			console.log("Initiating connection with Host: " + natHost + " Port: " + natPort);
+
+			//stun response - one's own external port and address
 			var ownPort = socket["attrs"]["1"]["port"];
 			var ownHost = socket["attrs"]["1"]["address"];
-			console.log(ownPort+ " --- " + ownHost);
-			natTRAVERSAL(ownPort,natHost,natPort,ownHost);
-          }else{
-	          var b = new Buffer(input);
-	          //console.log(input);
-	          natHost = input;
-	          input = "";
-	          console.log("Peer Port:");
-	      }
-        }
-      })
-});
 
+			natTRAVERSAL(ownPort,externalIP,externalPort,ownHost);
+
+		});
+	});
+
+});
 
 
 client.on("error_response",function(){
