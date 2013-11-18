@@ -46,6 +46,7 @@ public class DiscoveryTestDemo implements Runnable {
 			// stun.xten.net:3478
 			// stun.sipgate.net:10000
             DiscoveryInfo externalInfo = test.test();
+            System.out.println(externalInfo );
 
             DatagramSocket senderSocket = new DatagramSocket(LOCAL_PORT, InetAddress.getLocalHost());
 
