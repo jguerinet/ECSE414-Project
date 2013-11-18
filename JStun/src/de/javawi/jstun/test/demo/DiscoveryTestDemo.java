@@ -97,7 +97,7 @@ public class DiscoveryTestDemo implements Runnable {
 					InetAddress iaddress = iaddresses.nextElement();
 					if (Class.forName("java.net.Inet4Address").isInstance(iaddress)) {
 						if ((!iaddress.isLoopbackAddress()) && (!iaddress.isLinkLocalAddress())) {
-							Thread thread = new Thread(new DiscoveryTestDemo(iaddress, LOCAL_PORT));
+							Thread thread = new Thread(new DiscoveryTestDemo(iaddress));
 							thread.start();
 						}
 					}
