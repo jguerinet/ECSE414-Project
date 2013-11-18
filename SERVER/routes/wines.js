@@ -6,7 +6,7 @@ var Server = mongo.Server,
  
 var server = new Server('localhost', 27017, {auto_reconnect: true});
 db = new Db('winedb', server);
-var db = new Db('winedb',new Server 'localhost',27017, ) 
+//var db = new Db('winedb',new Server 'localhost',27017, ) 
 
 db.open(function(err, db) {
     if(!err) {
@@ -24,7 +24,7 @@ exports.findById = function(req, res) {
     var id = req.params.id;
     console.log('Retrieving wine: ' + id);
     db.collection('wines', function(err, collection) {
-        collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
+        collection.findOne({'_id':id}, function(err, item) {
             res.send(item);
         });
     });
