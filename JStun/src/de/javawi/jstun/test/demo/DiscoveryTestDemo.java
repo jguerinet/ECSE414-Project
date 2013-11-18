@@ -62,7 +62,7 @@ public class DiscoveryTestDemo implements Runnable {
             String sentData = "SNEDER";
 
             DatagramPacket sentPacket = new DatagramPacket(sentData.getBytes(), sentData.getBytes().length,
-                    InetAddress.getByName(destinationIPAddress), Integer.valueOf(destinationPort));
+                    InetAddress.getByName(destinationIPAddress.trim()), Integer.valueOf(destinationPort.trim()));
 
             ReceiveDatagram receiver = new ReceiveDatagram(senderSocket);
             receiver.start();
@@ -70,6 +70,7 @@ public class DiscoveryTestDemo implements Runnable {
             while (true)
             {
                 senderSocket.send(sentPacket);
+                System.out.println("Sending packet...");
                 Thread.sleep(1000);
             }
 

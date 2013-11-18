@@ -2,9 +2,7 @@ package de.javawi.jstun.test.demo.ice;
 
 import java.net.DatagramSocket;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 
 /**
  * Created with IntelliJ IDEA.
