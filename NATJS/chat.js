@@ -29,13 +29,23 @@ var client = stun.connect(port, host);
 
 
 client.request(function(){
-	console.log("STUN CALLBACK");
+	console.log("Waiting for STUN response...");
 });
 
 var natPort;
 var natHost;
 
 client.on("response",function(socket) {
+	console.log("=====================================");
+	console.log("Stun Response:");
+	var ownPort = socket["attrs"]["1"]["port"];
+	var ownHost = socket["attrs"]["1"]["address"];
+
+	console.log("External Address: " + ownHost );
+	console.log("External Port: " + ownPort);
+	console.log("=====================================");
+
+	//console.log(socket);
 
 	var reader = readline.createInterface(
               process.stdin, 
@@ -43,11 +53,11 @@ client.on("response",function(socket) {
 
 	var externalIP = "";
 	var externalPort = "";
-	reader.question("External IP:",function(answer){
+	reader.question("External IP: ",function(answer){
 		externalIP = answer;
 		//console.log(answer);
 
-		reader.question("External Port:",function(answer){
+		reader.question("External Port: ",function(answer){
 			externalPort = answer;
 			//console.log(answer);
 
