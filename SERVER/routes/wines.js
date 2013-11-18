@@ -24,7 +24,10 @@ exports.findById = function(req, res) {
     var id = req.params.id;
     console.log('Retrieving wine: ' + id);
     db.collection('wines', function(err, collection) {
-        collection.findOne({'_id':id}, function(err, item) {
+        collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
+            if(!item){
+                console.log("item doesn't exist");
+            }
             res.send(item);
         });
     });
@@ -33,6 +36,7 @@ exports.findById = function(req, res) {
 exports.findAll = function(req, res) {
     db.collection('wines', function(err, collection) {
         collection.find().toArray(function(err, items) {
+            
             res.send(items);
         });
     });
