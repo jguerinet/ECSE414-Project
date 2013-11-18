@@ -11,20 +11,20 @@
 
 package de.javawi.jstun.test.demo;
 
-import java.net.BindException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-
+import de.javawi.jstun.test.DiscoveryInfo;
 import de.javawi.jstun.test.DiscoveryTest;
+import de.javawi.jstun.test.demo.ice.ReceiveDatagram;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.*;
+import java.util.Enumeration;
+import java.util.logging.*;
 
 public class DiscoveryTestDemo implements Runnable {
-	InetAddress iaddress;
+	public static final int LOCAL_PORT = 8000;
+
+    InetAddress iaddress;
 	int port;
 	
 	public DiscoveryTestDemo(InetAddress iaddress, int port) {
@@ -45,7 +45,35 @@ public class DiscoveryTestDemo implements Runnable {
 			// larry.gloo.net:3478
 			// stun.xten.net:3478
 			// stun.sipgate.net:10000
-			System.out.println(test.test());
+            DiscoveryInfo externalInfo = test.test();
+
+            DatagramSocket senderSocket = new DatagramSocket(LOCAL_PORT, InetAddress.getLocalHost());
+
+            System.out.println("My External IP: " + externalInfo.getPublicIP());
+            System.out.println("My External Port: " + Integer.toString(externalInfo.getPublicPort()));
+
+            System.out.print("Client IP Address: ");
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
+            String destinationIPAddress = br.readLine();
+
+            System.out.print("Client Port: ");
+            String destinationPort = br.readLine();
+
+            String sentData = "SNEDER";
+
+            DatagramPacket sentPacket = new DatagramPacket(sentData.getBytes(), sentData.getBytes().length,
+                    InetAddress.getByName(destinationIPAddress), Integer.valueOf(destinationPort));
+
+            ReceiveDatagram receiver = new ReceiveDatagram(senderSocket);
+            receiver.start();
+
+            while (true)
+            {
+                senderSocket.send(sentPacket);
+                Thread.sleep(1000);
+            }
+
+
 		} catch (BindException be) {
 			System.out.println(iaddress.toString() + ": " + be.getMessage());
 		} catch (Exception e) {
@@ -69,7 +97,7 @@ public class DiscoveryTestDemo implements Runnable {
 					InetAddress iaddress = iaddresses.nextElement();
 					if (Class.forName("java.net.Inet4Address").isInstance(iaddress)) {
 						if ((!iaddress.isLoopbackAddress()) && (!iaddress.isLinkLocalAddress())) {
-							Thread thread = new Thread(new DiscoveryTestDemo(iaddress));
+							Thread thread = new Thread(new DiscoveryTestDemo(iaddress, LOCAL_PORT));
 							thread.start();
 						}
 					}
