@@ -41,6 +41,7 @@ public class PacketCommunicator {
         String ackMessage;
         if(connected && peerConnected){
             ackMessage = ACK_BOTH_CONNECTED;
+            bothConnected = true;
         }
         else if(connected){
             ackMessage = ACK_CONNECTED;
@@ -48,7 +49,7 @@ public class PacketCommunicator {
         else{
             ackMessage = ACK_NOT_CONNECTED + name;
         }
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 5; i++){
             sendMessage(ackMessage);
         }
 
@@ -85,7 +86,7 @@ public class PacketCommunicator {
                 while(true)
                 {
                     socket.receive(receivedPacket);
-                    String packetData = new String(receivedPacket.getData());
+                    String packetData = new String(receivedPacket.getData()).trim();
 
                     //You are now connected to the peer
                     if(packetData.startsWith(ACK_NOT_CONNECTED)){
