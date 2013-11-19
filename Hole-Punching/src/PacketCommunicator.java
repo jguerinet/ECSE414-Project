@@ -39,11 +39,11 @@ public class PacketCommunicator {
         //With Connected if we are connected of not connected if we are not connected
         String ackMessage;
         if(connected && peerConnected){
-            ackMessage = ACK_BOTH_CONNECTED;
+            ackMessage = ACK_BOTH_CONNECTED + name;
             bothConnected = true;
         }
         else if(connected){
-            ackMessage = ACK_CONNECTED;
+            ackMessage = ACK_CONNECTED + name;
         }
         else{
             ackMessage = ACK_NOT_CONNECTED + name;
@@ -95,10 +95,12 @@ public class PacketCommunicator {
                     }
                     //Peer is connected to you
                     else if(packetData.startsWith(ACK_CONNECTED)){
+                        peerName = packetData.replace(ACK_CONNECTED, "");
                         connected = true;
                         peerConnected = true;
                     }
                     else if(packetData.startsWith(ACK_BOTH_CONNECTED)){
+                        peerName = packetData.replace(ACK_BOTH_CONNECTED, "");
                         bothConnected = true;
                     }
                     //Normal message
