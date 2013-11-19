@@ -89,6 +89,8 @@ public class Chat {
             chosenPeer = choosePeer();
         }
 
+        /* DESTINATION ADDRESS SET-UP */
+
         //Check if you are behind the same NAT
         if(hostExternalAddress.equals(InetAddress.getByName(chosenPeer.getExternalAddress()))){
             //Use internal address if you are behind the same NAT
@@ -100,6 +102,8 @@ public class Chat {
             destinationAddress = InetAddress.getByName(chosenPeer.getExternalAddress());
             destinationPort = Integer.valueOf(chosenPeer.getExternalPort());
         }
+
+        /* CHAT SET-UP */
 
         //Reconnect the socket (for some reason the getMappingFor() method closes the socket
         if(socket.isClosed()){
