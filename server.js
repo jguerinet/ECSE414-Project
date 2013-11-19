@@ -186,9 +186,20 @@ var SampleApp = function() {
            
             });
         });
-        /*
-        self.app.post('/peers', peer.addPeer);
-        self.app.put('/peers/:id', peer.updatePeer);
+        
+        self.app.post('/peers', function(req, res) {
+            var peer = req.body;
+            console.log('Adding peer: ' + JSON.stringify(peer));
+            db.peers.insert(peer, {safe:true}, function(err, result) {
+                if (err) {
+                    res.send({'error':'An error has occurred'});
+                } else {
+                    console.log('Success: ' + JSON.stringify(result[0]));
+                    res.send(result[0]);
+                }
+            });
+        });
+        /*self.app.put('/peers/:id', peer.updatePeer);
         self.app.delete('/peers/:id', peer.deletePeer);
         */
     };
