@@ -146,7 +146,7 @@ public class Chat {
         }
 
         System.out.print("Chosen Peer: ");
-        String chosenPeerName = reader.readLine();
+        String chosenPeerName = reader.readLine().trim();
 
         if(chosenPeerName.equalsIgnoreCase("refresh")){
             System.out.println("Refreshing...");
