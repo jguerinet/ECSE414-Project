@@ -4,10 +4,14 @@ var mongojs = require('mongojs');
     Db = mongo.Db,
     BSON = mongo.BSONPure;
 */
+var mongo = require('mongodb');
+var BSON = mongo.BSONPure;
 
 //Set the environment variables we need.
 var ipaddress = process.env.OPENSHIFT_NODEJS_IP;
 var port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+
+console.log('top of peers');
 
 // default to a 'localhost' configuration:
 var connection_string = '127.0.0.1:27017/chat';
@@ -29,8 +33,9 @@ db.peers.find({}).limit(10).forEach(function(err, doc) {
   if (doc) { console.dir(doc); }
 });
 
+console.log('the peer top part is run every time it appears');
 
-db.open(function(err, db) {
+/*db.open(function(err, db) {
     if(!err) {
         console.log("Connected to 'peerdb' database");
         db.collection('peers', {strict:true}, function(err, collection) {
@@ -38,9 +43,10 @@ db.open(function(err, db) {
                 console.log("The 'peers' collection doesn't exist. Creating it with sample data...");
                 populateDB();
             }
+            populateDB();
         });
     }
-});
+});*/
  
 exports.findById = function(req, res) {
     var id = req.params.id;
@@ -63,11 +69,42 @@ exports.findById = function(req, res) {
         });
     });
 };
- 
+
+// exports.findFromDB = function(require) {
+//     console.log('findFromDB');
+    
+    
+//     console.log('this ran');
+//     var collection = db.get('peers');
+//     collection.find({},{},function(e,docs){
+//         res.send("HUGE SUCCESS");
+//     });
+
+
+//     /*db.collection('peers', function(err, collection) {
+//         collection.find().toArray(function(err, items) {
+//             console.log('found all items');
+//             //res.send(items);
+//         });
+//     });*/
+// }
+
+
+
+
 exports.findAll = function(req, res) {
+    console.log("FIND ALL");
+
+    if (db) {
+        console.log("db exists")
+        //console.log(db);
+    }else{
+        console.log("db does not exist");    
+    };
+
     db.collection('peers', function(err, collection) {
         collection.find().toArray(function(err, items) {
-            
+            console.log('found all items');
             res.send(items);
         });
     });
@@ -125,7 +162,7 @@ exports.deletePeer = function(req, res) {
 // Populate database with sample data -- Only used once: the first time the application is started.
 // You'd typically not find this code in a real-life app, since the database would already exist.
 var populateDB = function() {
- 
+    console.log("populating db");
     var peers = [
     {
         name: "Cameron Bell",
@@ -143,9 +180,14 @@ var populateDB = function() {
         externalAddress: "69.143.194.59",
         externalPort: "51283",
     }];
- 
+
     db.collection('peers', function(err, collection) {
-        collection.insert(peers, {safe:true}, function(err, result) {});
+        collection.insert(peers, {safe:true}, function(err, result) {
+            console.log('Error: ' + err);
+            console.log('Result: ' + result);
+
+        });
+
     });
  
 };

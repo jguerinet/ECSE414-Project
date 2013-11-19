@@ -4,7 +4,7 @@ var express = require('express');
 var fs      = require('fs');
 var mongojs = require('mongojs');
 var peer = require('./routes/peers');
-
+var db;
 /**
  *  Define the sample application.
  */
@@ -37,7 +37,7 @@ var SampleApp = function() {
           process.env.OPENSHIFT_APP_NAME;
         }
 
-        var db = mongojs(connection_string, ['peers']);
+        db = mongojs(connection_string, ['peers']);
         var peers = db.collection('peers');
         // similar syntax as the Mongo command-line interface
         // log each of the first ten docs in the collection
@@ -126,6 +126,7 @@ var SampleApp = function() {
             res.setHeader('Content-Type', 'text/html');
             res.send("Hello World like a bau5");
         };
+        self.routes
     };
 
 
@@ -141,15 +142,21 @@ var SampleApp = function() {
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }
-
+        self.app.get('/test',function(req,res){
+            console.log("test worked");
+            res.send("sup");
+        });
         self.app.get('/peers', peer.findAll);
         self.app.get('/peers/:id', peer.findById);
         self.app.post('/peers', peer.addPeer);
         self.app.put('/peers/:id', peer.updatePeer);
         self.app.delete('/peers/:id', peer.deletePeer);
+
     };
 
-
+    /*self.app.get('/peers',function(){
+        console.log("Got this PEERS function");
+    });*/
     /**
      *  Initializes the sample application.
      */
