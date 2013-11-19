@@ -1,4 +1,3 @@
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ice4j.Transport;
 import org.ice4j.TransportAddress;
@@ -8,13 +7,9 @@ import org.ice4j.stunclient.SimpleAddressDetector;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.*;
-import java.util.List;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.URL;
 
 
 public class Chat {
@@ -74,6 +69,8 @@ public class Chat {
 
         /* SERVER CONNECTION */
 
+        //TODO Connect to server to give info
+
         getPeers();
 
         //Get the chosen peer
@@ -125,6 +122,9 @@ public class Chat {
             if(message.equals(DISCONNECT)){
                 communicator.disconnect();
                 System.out.println("Disconnecting...");
+
+                //TODO Disconnect from the server
+
                 System.exit(0);
             }
             //If not, just send the message
