@@ -181,6 +181,9 @@ var SampleApp = function() {
             db.peers.findOne({'_id':findThisID}, function(err, item) {
                 if(!item){
                     console.log("peer doesn't exist");
+                    res.code = 404;
+                    res.send(404);
+                    //res.send("Peer does not exist.");
                 }
                 res.send(item);
            
@@ -199,9 +202,36 @@ var SampleApp = function() {
                 }
             });
         });
-        /*self.app.put('/peers/:id', peer.updatePeer);
-        self.app.delete('/peers/:id', peer.deletePeer);
-        */
+        self.app.put('/peers/:id', function(req, res) {
+            var id = req.params.id;
+            var peer = req.body;
+            console.log('Updating peer: ' + id);
+            console.log(JSON.stringify(peer));
+            db.peers.update({'_id':new BSON.ObjectID(id)}, peer, {safe:true}, function(err, result) {
+                if (err) {
+                    console.log('Error updating peer: ' + err);
+                    res.send({'error':'An error has occurred'});
+                } else {
+                    console.log('' + result + ' document(s) updated');
+                    res.send(peer);
+                }
+            });
+        });
+
+
+        self.app.delete('/peers/:id', function(req, res) {
+            var id = req.params.id;
+            console.log('Deleting peer: ' + id);
+            db.peers.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
+                if (err) {
+                    res.send({'error':'An error has occurred - ' + err});
+                } else {
+                    console.log('' + result + ' document(s) deleted');
+                    res.send(req.body);
+                }
+            });
+        });
+
     };
 
     /*self.app.get('/peers',function(){
