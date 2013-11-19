@@ -11,7 +11,7 @@ import java.net.InetAddress;
 import java.net.URL;
 
 
-public class ClientCode {
+public class Client {
 	public static final String SERVER_URL = "http://stun.l.google.com";
 	public static final int SERVER_PORT = 19302;
     public static final int LOCAL_PORT = 56144;
