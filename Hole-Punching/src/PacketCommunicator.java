@@ -12,16 +12,18 @@ public class PacketCommunicator {
     public InetAddress destinationAddress;
     public int destinationPort;
     private String peerName;
-    private boolean acked;
+    private boolean connected, peerConnected;
 
     private static byte[] packetBuffer = new byte[1024];
-    private static String ACK = "#!#ACK";
+    private static String ACK_NOT_CONNECTED = "#!#DISCONNECTED";
+    private static String ACK_CONNECTED = "#!#CONNECTED";
 
     public PacketCommunicator(DatagramSocket socket, InetAddress address, int port){
         this.socket = socket;
         this.destinationAddress = address;
         this.destinationPort = port;
-        this.acked = false;
+        this.connected = false;
+        this.peerConnected = false;
 
         //Initialize the receiver
         new PacketReceiver().start();
@@ -33,8 +35,9 @@ public class PacketCommunicator {
         System.out.println("Connecting to peer...");
 
         //Send 10 of these (gives us a better to chance to connect to the client)
+        //With Connected if we are connected of not connected if we are not connected
         for(int i = 0; i < 10; i++){
-            sendMessage(ACK+name);
+            sendMessage((connected?ACK_CONNECTED:ACK_NOT_CONNECTED)+name);
         }
 
         //Wait 2 seconds
@@ -44,11 +47,8 @@ public class PacketCommunicator {
             e.printStackTrace();
         }
 
-        //Check if we have acknowledged
-        if(acked){
-            return true;
-        }
-        return false;
+        //Check if both people are connected
+        return connected && peerConnected;
     }
 
     public void sendMessage(String message){
@@ -75,11 +75,16 @@ public class PacketCommunicator {
                     socket.receive(receivedPacket);
                     String packetData = new String(receivedPacket.getData());
 
-                    //Ack packets
-                    if(!acked && packetData.startsWith(ACK)){
-                        //Set ack to true, get the peer name
-                        acked = true;
-                        peerName = packetData.replace(ACK, "");
+                    //You are now connected to the peer
+                    if(packetData.startsWith(ACK_NOT_CONNECTED)){
+                        connected = true;
+                        peerName = packetData.replace(ACK_NOT_CONNECTED, "");
+                    }
+                    //Peer is connected to you
+                    if(packetData.startsWith(ACK_CONNECTED)){
+                        connected = true;
+                        peerConnected = true;
+                        peerName = packetData.replace(ACK_CONNECTED, "");
                     }
                     //Normal message
                     else{
