@@ -3,6 +3,7 @@
 var express = require('express');
 var fs      = require('fs');
 var mongojs = require('mongojs');
+var peer = require('./routes/peers');
 
 /**
  *  Define the sample application.
@@ -21,7 +22,7 @@ var SampleApp = function() {
      *  Set up server IP address and port # using env variables/defaults.
      */
     self.setupVariables = function() {
-        //  Set the environment variables we need.
+        /*//  Set the environment variables we need.
         self.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
         self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 
@@ -44,6 +45,7 @@ var SampleApp = function() {
           if (err) throw err;
           if (doc) { console.dir(doc); }
         });
+        */
 
         if (typeof self.ipaddress === "undefined") {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
@@ -139,6 +141,12 @@ var SampleApp = function() {
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }
+
+        self.app.get('/peers', peer.findAll);
+        self.app.get('/peers/:id', peer.findById);
+        self.app.post('/peers', peer.addPeer);
+        self.app.put('/peers/:id', peer.updatePeer);
+        self.app.delete('/peers/:id', peer.deletePeer);
     };
 
 
