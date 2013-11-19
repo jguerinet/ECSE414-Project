@@ -3,6 +3,8 @@
 var express = require('express');
 var fs      = require('fs');
 var mongojs = require('mongojs');
+var mongo = require('mongodb');
+var BSON = mongo.BSONPure;
 //var peer = require('./routes/peers');
 var db;
 /**
@@ -138,6 +140,11 @@ var SampleApp = function() {
         self.createRoutes();
         self.app = express();
 
+        self.app.configure(function () {
+            self.app.use(express.logger('dev'));     /* 'default', 'short', 'tiny', 'dev' */
+            self.app.use(express.bodyParser());
+        });
+
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
@@ -148,18 +155,42 @@ var SampleApp = function() {
         });
         self.app.get('/peers', function(req,res){
             console.log('Display all peers');
-            db.peers.find({}).limit(10).forEach(function(err, doc) {
+            /*db.peers.find({}).limit(10).forEach(function(err, doc) {
                 if (err) throw err;
-                if (doc) { console.dir(doc); }
+                if (doc) { console.dir(doc);
+                res }
+            });*/
+            db.peers.find(function(error,docs) {
+                res.send(docs);
             });
         });
-
-        self.populateDB();
-        /*self.app.get('/peers/:id', peer.findById);
+        
+        self.app.get('/peers/:id',function(req,res){
+            var id = req.params.id;
+            console.log('Retrieving peer: ' + id);
+            var findThisID;
+            try 
+            {
+               findThisID = new BSON.ObjectID(id);
+            }
+            catch (err)
+            {
+               console.log(err);
+            }
+            
+            db.peers.findOne({'_id':findThisID}, function(err, item) {
+                if(!item){
+                    console.log("peer doesn't exist");
+                }
+                res.send(item);
+           
+            });
+        });
+        /*
         self.app.post('/peers', peer.addPeer);
         self.app.put('/peers/:id', peer.updatePeer);
         self.app.delete('/peers/:id', peer.deletePeer);
-*/
+        */
     };
 
     /*self.app.get('/peers',function(){
