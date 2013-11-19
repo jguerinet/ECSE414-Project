@@ -2,7 +2,7 @@
 //  OpenShift sample Node application
 var express = require('express');
 var fs      = require('fs');
-
+var mongojs = require('mongojs');
 
 /**
  *  Define the sample application.
@@ -24,6 +24,26 @@ var SampleApp = function() {
         //  Set the environment variables we need.
         self.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
         self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+
+        // default to a 'localhost' configuration:
+        var connection_string = '127.0.0.1:27017/chat';
+        // if OPENSHIFT env variables are present, use the available connection info:
+        if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
+          connection_string = process.env.OPENSHIFT_MONGODB_DB_USERNAME + ":" +
+          process.env.OPENSHIFT_MONGODB_DB_PASSWORD + "@" +
+          process.env.OPENSHIFT_MONGODB_DB_HOST + ':' +
+          process.env.OPENSHIFT_MONGODB_DB_PORT + '/' +
+          process.env.OPENSHIFT_APP_NAME;
+        }
+
+        var db = mongojs(connection_string, ['peers']);
+        var peers = db.collection('peers');
+        // similar syntax as the Mongo command-line interface
+        // log each of the first ten docs in the collection
+        db.peers.find({}).limit(10).forEach(function(err, doc) {
+          if (err) throw err;
+          if (doc) { console.dir(doc); }
+        });
 
         if (typeof self.ipaddress === "undefined") {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
@@ -102,7 +122,7 @@ var SampleApp = function() {
 
         self.routes['/'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
-            res.send("Hello World");
+            res.send("Hello World like a bau5");
         };
     };
 
