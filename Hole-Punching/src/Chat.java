@@ -114,12 +114,13 @@ public class Chat {
         }
 
         System.out.println("Connected to " + chosenPeer.getName());
+        System.out.println("Type 'Exit' to exit the program");
 
         //Send the messages
         while(true){
             String message = reader.readLine();
             //If user chooses to disconnect
-            if(message.equals(DISCONNECT)){
+            if(message.equalsIgnoreCase(DISCONNECT)){
                 communicator.disconnect();
                 System.out.println("Disconnecting...");
 
