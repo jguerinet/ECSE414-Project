@@ -1,9 +1,9 @@
 var mongojs = require('mongojs');
  
-var Server = mongo.Server,
+/*var Server = mongo.Server,
     Db = mongo.Db,
     BSON = mongo.BSONPure;
-
+*/
 
 //Set the environment variables we need.
 var ipaddress = process.env.OPENSHIFT_NODEJS_IP;
