@@ -32,23 +32,27 @@ public class PacketCommunicator {
     }
 
     //This would send acknowledgment packets to hole punch your NAT
-    public boolean connectToClient(String name){
-        //Let the user know we are trying to connect
-        System.out.println("Connecting to peer...");
+    public boolean connectToClient(String peerName){
+        //Set the peer name
+        this.peerName = peerName;
 
-        //Send 10 of these (gives us a better to chance to connect to the client)
+        //Let the user know we are trying to connect
+        System.out.println("Connecting to " + peerName + " at address " + destinationAddress.getHostAddress() + " on port " + destinationPort);
+
+        //Send 5 of these (gives us a better to chance to connect to the client)
         //With Connected if we are connected of not connected if we are not connected
         String ackMessage;
         if(connected && peerConnected){
-            ackMessage = ACK_BOTH_CONNECTED + name;
+            ackMessage = ACK_BOTH_CONNECTED;
             bothConnected = true;
         }
         else if(connected){
-            ackMessage = ACK_CONNECTED + name;
+            ackMessage = ACK_CONNECTED;
         }
         else{
-            ackMessage = ACK_NOT_CONNECTED + name;
+            ackMessage = ACK_NOT_CONNECTED;
         }
+
         for(int i = 0; i < 5; i++){
             sendMessage(ackMessage);
         }
@@ -96,16 +100,13 @@ public class PacketCommunicator {
                     //You are now connected to the peer
                     if(packetData.startsWith(ACK_NOT_CONNECTED)){
                         connected = true;
-                        peerName = packetData.replace(ACK_NOT_CONNECTED, "");
                     }
                     //Peer is connected to you
                     else if(packetData.startsWith(ACK_CONNECTED)){
-                        peerName = packetData.replace(ACK_CONNECTED, "");
                         connected = true;
                         peerConnected = true;
                     }
                     else if(packetData.startsWith(ACK_BOTH_CONNECTED)){
-                        peerName = packetData.replace(ACK_BOTH_CONNECTED, "");
                         bothConnected = true;
                     }
                     else if(packetData.startsWith(DISCONNECT)){
