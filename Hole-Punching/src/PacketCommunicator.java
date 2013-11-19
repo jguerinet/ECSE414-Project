@@ -14,7 +14,6 @@ public class PacketCommunicator {
     private String peerName;
     private boolean connected, peerConnected, bothConnected;
 
-    private static byte[] packetBuffer = new byte[1024];
     private static String ACK_NOT_CONNECTED = "#!#DISCONNECTED";
     private static String ACK_CONNECTED = "#!#CONNECTED";
     private static String ACK_BOTH_CONNECTED = "#!#BOTHCONNECTED";
@@ -80,11 +79,12 @@ public class PacketCommunicator {
         @Override
         public void run()
         {
-            DatagramPacket receivedPacket = new DatagramPacket(packetBuffer, packetBuffer.length);
             try
             {
                 while(true)
                 {
+                    byte[] packetBuffer = new byte[1024];
+                    DatagramPacket receivedPacket = new DatagramPacket(packetBuffer, packetBuffer.length);
                     socket.receive(receivedPacket);
                     String packetData = new String(receivedPacket.getData()).trim();
 
