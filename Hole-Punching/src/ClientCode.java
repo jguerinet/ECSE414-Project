@@ -19,7 +19,7 @@ public class ClientCode {
     static BufferedReader reader;
 	static DatagramSocket socket;
 
-    static String name, peerName;
+    static String name;
 	
 	public static void main(String[] args) throws IOException{
 		//Set up the socket
@@ -69,30 +69,26 @@ public class ClientCode {
             socket =  new DatagramSocket(LOCAL_PORT, InetAddress.getLocalHost());
         }
 
-        PacketSender sender = new PacketSender(socket, destinationAddress, Integer.valueOf(destinationPort));
+        PacketCommunicator sender = new PacketCommunicator(socket, destinationAddress, Integer.valueOf(destinationPort));
 
         //Connect to the peer
-        peerName = null;
+        boolean connected = false;
 
         //Keep on trying to connect to the peer
-        while(peerName == null){
-            peerName = sender.connectToClient(name);
-            if(peerName == null){
+        while(!connected){
+            connected = sender.connectToClient(name);
+            if(!connected){
                 System.out.println("Connection Failed. Retrying...");
             }
         }
 
         System.out.println("Connected");
 
-        //Set up the receiver
-        PacketReceiver receiver = new PacketReceiver(socket, peerName);
-        receiver.start();
-
         //Send the messages
         while(true){
             String message = reader.readLine();
             //Print your message on the screen
-            System.out.println(peerName + ": " + message);
+            System.out.println(name + ": " + message);
             sender.sendMessage(message);
         }
 	}
