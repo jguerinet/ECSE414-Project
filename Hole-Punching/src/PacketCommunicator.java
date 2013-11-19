@@ -17,6 +17,7 @@ public class PacketCommunicator {
     private static String ACK_NOT_CONNECTED = "#!#DISCONNECTED";
     private static String ACK_CONNECTED = "#!#CONNECTED";
     private static String ACK_BOTH_CONNECTED = "#!#BOTHCONNECTED";
+    private static String DISCONNECT = "#!#DISCONNECT";
 
     public PacketCommunicator(DatagramSocket socket, InetAddress address, int port){
         this.socket = socket;
@@ -73,6 +74,10 @@ public class PacketCommunicator {
         }
     }
 
+    public void disconnect(){
+        sendMessage(DISCONNECT);
+    }
+
     //To receive packets we have a separate thread.
     public class PacketReceiver extends Thread
     {
@@ -102,6 +107,9 @@ public class PacketCommunicator {
                     else if(packetData.startsWith(ACK_BOTH_CONNECTED)){
                         peerName = packetData.replace(ACK_BOTH_CONNECTED, "");
                         bothConnected = true;
+                    }
+                    else if(packetData.startsWith(DISCONNECT)){
+                        System.out.println("Peer has disconnected.");
                     }
                     //Normal message
                     else{

@@ -14,7 +14,9 @@ import java.net.URL;
 public class ClientCode {
 	public static final String SERVER_URL = "http://stun.l.google.com";
 	public static final int SERVER_PORT = 19302;
-    public static final int LOCAL_PORT = 56145;
+    public static final int LOCAL_PORT = 56144;
+
+    public static final String DISCONNECT = "EXIT";
 
     static BufferedReader reader;
 	static DatagramSocket socket;
@@ -87,9 +89,14 @@ public class ClientCode {
         //Send the messages
         while(true){
             String message = reader.readLine();
-            //Print your message on the screen
-            System.out.println(name + ": " + message);
-            sender.sendMessage(message);
+            if(message.equals(DISCONNECT)){
+                sender.disconnect();
+                System.out.println("Disconnecting...");
+                System.exit(0);
+            }
+            else{
+                sender.sendMessage(message);
+            }
         }
 	}
 }
