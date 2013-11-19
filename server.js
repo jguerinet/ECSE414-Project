@@ -3,7 +3,7 @@
 var express = require('express');
 var fs      = require('fs');
 var mongojs = require('mongojs');
-var peer = require('./routes/peers');
+//var peer = require('./routes/peers');
 var db;
 /**
  *  Define the sample application.
@@ -25,7 +25,7 @@ var SampleApp = function() {
         //  Set the environment variables we need.
         self.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
         self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
-/*
+
         // default to a 'localhost' configuration:
         var connection_string = '127.0.0.1:27017/chat';
         // if OPENSHIFT env variables are present, use the available connection info:
@@ -45,7 +45,7 @@ var SampleApp = function() {
           if (err) throw err;
           if (doc) { console.dir(doc); }
         });
-        */
+        
 
         if (typeof self.ipaddress === "undefined") {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
@@ -146,12 +146,20 @@ var SampleApp = function() {
             console.log("test worked");
             res.send("sup");
         });
-        self.app.get('/peers', peer.findAll);
-        self.app.get('/peers/:id', peer.findById);
+        self.app.get('/peers', function(req,res){
+            console.log('Display all peers');
+            db.peers.find({}).limit(10).forEach(function(err, doc) {
+                if (err) throw err;
+                if (doc) { console.dir(doc); }
+            });
+        });
+
+        self.populateDB();
+        /*self.app.get('/peers/:id', peer.findById);
         self.app.post('/peers', peer.addPeer);
         self.app.put('/peers/:id', peer.updatePeer);
         self.app.delete('/peers/:id', peer.deletePeer);
-
+*/
     };
 
     /*self.app.get('/peers',function(){
@@ -167,6 +175,36 @@ var SampleApp = function() {
 
         // Create the express server and routes.
         self.initializeServer();
+    };
+
+    /*--------------------------------------------------------------------------------------------------------------------*/
+    // Populate database with sample data -- Only used once: the first time the application is started.
+    // You'd typically not find this code in a real-life app, since the database would already exist.
+    self.populateDB = function() {
+        console.log("populating db");
+        var peers = [
+        {
+            name: "Cameron Bell",
+            externalAddress: "69.143.546.34",
+            externalPort: "34583",
+            
+        },
+        {
+            name: "Julien Guerinet",
+            externalAddress: "69.142.966.234",
+            externalPort: "58394",
+        },
+        {
+            name: "Yulric Sequeira",
+            externalAddress: "69.143.194.59",
+            externalPort: "51283",
+        }];
+
+        db.peers.insert(peers, {safe:true}, function(err, result) {
+                console.log('Error: ' + err);
+                console.log('Result: ' + result);
+        });
+     
     };
 
 
@@ -191,4 +229,6 @@ var SampleApp = function() {
 var zapp = new SampleApp();
 zapp.initialize();
 zapp.start();
+
+
 
