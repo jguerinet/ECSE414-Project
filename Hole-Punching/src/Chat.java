@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ice4j.Transport;
 import org.ice4j.TransportAddress;
@@ -7,10 +8,7 @@ import org.ice4j.stunclient.SimpleAddressDetector;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.DatagramSocket;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.URL;
+import java.net.*;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -76,12 +74,7 @@ public class Chat {
 
         /* SERVER CONNECTION */
 
-        //Get the URL
-        URL url = new URL(SERVER_URL);
-
-        //Get the Jackson Mapper ready
-        ObjectMapper mapper = new ObjectMapper();
-        peers = mapper.readValue(url, Peer[].class);
+        getPeers();
 
         //Get the chosen peer
         Peer chosenPeer = null;
@@ -144,7 +137,7 @@ public class Chat {
     //Get a peer from the list of peers
     public static Peer choosePeer() throws IOException{
         //Show list of peers
-        System.out.println("Type the name of the Peer you want to Connect With: ");
+        System.out.println("Type the name of the peer you want to connect with or 'refresh' to refresh the list: ");
         for(Peer peer : peers){
             if(peer.getName() != null){
                 System.out.println("- " + peer.getName());
@@ -153,6 +146,12 @@ public class Chat {
 
         System.out.print("Chosen Peer: ");
         String chosenPeerName = reader.readLine();
+
+        if(chosenPeerName.equalsIgnoreCase("refresh")){
+            System.out.println("Refreshing...");
+            getPeers();
+            return null;
+        }
 
         //Find the right peer
         for(Peer peer : peers){
@@ -163,5 +162,15 @@ public class Chat {
 
         System.out.println("Name not found. Please try again.");
         return null;
+    }
+
+    //Get list of peers from server
+    public static void getPeers() throws IOException {
+        //Get the URL
+        URL url = new URL(SERVER_URL);
+
+        //Get the Jackson Mapper ready
+        ObjectMapper mapper = new ObjectMapper();
+        peers = mapper.readValue(url, Peer[].class);
     }
 }
