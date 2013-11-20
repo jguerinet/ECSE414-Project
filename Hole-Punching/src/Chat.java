@@ -15,10 +15,15 @@ import java.net.URL;
 
 
 public class Chat {
-    public static final String SERVER_URL = "http://chat-sigvaria.rhcloud.com/peers/";
+    public static final String PROD_SERVER_URL = "http://chat-sigvaria.rhcloud.com/peers/";
+    public static final String TEST_SERVER_URL = "http://localhost:8080/peers/";
 	public static final String STUN_SERVER_URL = "http://stun.l.google.com";
 	public static final int STUN_SERVER_PORT = 19302;
     public static final int LOCAL_PORT = 56144;
+    public static final boolean TEST_MODE  = true;
+
+    //gets assigned either TEST OR PROD SERVER URL
+    public static String SERVER_URL;
 
     public static final String DISCONNECT = "EXIT";
 
@@ -32,11 +37,15 @@ public class Chat {
 
     static InetAddress destinationAddress, hostInternalAddress, hostExternalAddress;
     static int destinationPort, hostInternalPort, hostExternalPort;
-	
+
+
+
 	public static void main(String[] args) throws IOException{
 		//Set up the internal info
         hostInternalAddress = InetAddress.getLocalHost();
         hostInternalPort = LOCAL_PORT;
+
+        SERVER_URL = TEST_MODE ? TEST_SERVER_URL : PROD_SERVER_URL;
 
 		//Set up the socket
         socket = new DatagramSocket(hostInternalPort, hostInternalAddress);
