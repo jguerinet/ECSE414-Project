@@ -244,7 +244,10 @@ var SampleApp = function() {
                 }
             });*/
 
-            db.peers.remove();
+            db.peers.remove(function(req,res) {
+                res.send('Peers exterminated');
+            });
+
         });
 
     };
