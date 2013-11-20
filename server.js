@@ -244,7 +244,7 @@ var SampleApp = function() {
                 }
             });*/
 
-            db.peers.remove(function(req,res) {
+            db.peers.remove(function() {
                 res.send('Peers exterminated');
             });
 
