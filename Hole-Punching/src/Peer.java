@@ -6,6 +6,7 @@
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Peer {
@@ -14,6 +15,19 @@ public class Peer {
     private String externalPort;
     private String internalAddress;
     private String internalPort;
+    @JsonProperty("_id")
+    private String id;
+
+    public Peer(){}
+
+    public Peer(String name, String internalAddress, String internalPort,
+                String externalAddress, String externalPort){
+        this.name = name;
+        this.internalAddress = internalAddress;
+        this.internalPort = internalPort;
+        this.externalAddress = externalAddress;
+        this.externalPort = externalPort;
+    }
 
     public String getName(){
         return this.name;
@@ -35,6 +49,10 @@ public class Peer {
         return this.internalPort;
     }
 
+    public String getId(){
+        return this.id;
+    }
+
     public void setName(String name){
         this.name = name;
     }
@@ -53,5 +71,9 @@ public class Peer {
 
     public void setInternalPort(String internalPort){
         this.internalPort = internalPort;
+    }
+
+    public void setId(String id){
+        this.id = id;
     }
 }

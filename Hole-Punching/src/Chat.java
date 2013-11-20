@@ -7,7 +7,9 @@ import org.ice4j.stunclient.SimpleAddressDetector;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.DatagramSocket;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 
@@ -15,16 +17,18 @@ import java.net.URL;
 public class Chat {
     public static final String SERVER_URL = "http://chat-sigvaria.rhcloud.com/peers/";
 	public static final String STUN_SERVER_URL = "http://stun.l.google.com";
-	public static final int SERVER_PORT = 19302;
+	public static final int STUN_SERVER_PORT = 19302;
     public static final int LOCAL_PORT = 56144;
 
     public static final String DISCONNECT = "EXIT";
 
     static BufferedReader reader;
 	static DatagramSocket socket;
+    static ObjectMapper mapper;
 
     static String name;
     static Peer[] peers;
+    static Peer user;
 
     static InetAddress destinationAddress, hostInternalAddress, hostExternalAddress;
     static int destinationPort, hostInternalPort, hostExternalPort;
@@ -40,9 +44,26 @@ public class Chat {
         //Set up the CLI reader
         reader = new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
 
-        //Get the user's name
-        System.out.print("Please enter your name: ");
-        name = reader.readLine();
+        //Set up the JSON mapper
+        mapper = new ObjectMapper();
+
+        //Get peers
+        getPeers();
+
+        boolean validName = false;
+
+        while(!validName){
+            validName = true;
+            //Get the user's name
+            System.out.print("Please enter your name: ");
+            name = reader.readLine();
+            for(Peer peer : peers){
+                if(name.equals(peer.getName())){
+                    System.out.println("Error : name already taken, please try again.");
+                    validName = false;
+                }
+            }
+        }
 
         /* STUN SERVER CONNECTION */
 
@@ -50,7 +71,7 @@ public class Chat {
         IceUdpSocketWrapper socketWrapper = new IceUdpSocketWrapper(socket);
 
         //Set up the server
-		TransportAddress socketTransportAddress = new TransportAddress(new URL(STUN_SERVER_URL).getHost(), SERVER_PORT, Transport.UDP);
+		TransportAddress socketTransportAddress = new TransportAddress(new URL(STUN_SERVER_URL).getHost(), STUN_SERVER_PORT, Transport.UDP);
 
 		//Set up the Address Discoverer
 		SimpleAddressDetector detector = new SimpleAddressDetector(socketTransportAddress);
@@ -69,9 +90,7 @@ public class Chat {
 
         /* SERVER CONNECTION */
 
-        //TODO Connect to server to give info
-
-        getPeers();
+        connectToServer();
 
         //Get the chosen peer
         Peer chosenPeer = null;
@@ -123,9 +142,8 @@ public class Chat {
             if(message.equalsIgnoreCase(DISCONNECT)){
                 communicator.disconnect();
                 System.out.println("Disconnecting...");
-
-                //TODO Disconnect from the server
-
+                //Disconnect from the server
+                disconnectFromServer();
                 System.exit(0);
             }
             //If not, just send the message
@@ -135,12 +153,29 @@ public class Chat {
         }
 	}
 
+    //Get list of peers from server
+    public static void getPeers() throws IOException {
+        //Get the URL
+        URL url = new URL(SERVER_URL);
+
+        peers = mapper.readValue(url, Peer[].class);
+
+        //Find out which peer maps to the current user
+        for(Peer peer : peers){
+            if(peer.getName().equals(name)){
+                user = peer;
+                break;
+            }
+        }
+    }
+
     //Get a peer from the list of peers
     public static Peer choosePeer() throws IOException{
         //Show list of peers
         System.out.println("Type the name of the peer you want to connect with or 'refresh' to refresh the list: ");
+        System.out.println("Type 'Exit' to exit the program");
         for(Peer peer : peers){
-            if(peer.getName() != null){
+            if(peer.getName() != null && !peer.getName().equals(user.getName())){
                 System.out.println("- " + peer.getName());
             }
         }
@@ -152,6 +187,13 @@ public class Chat {
             System.out.println("Refreshing...");
             getPeers();
             return null;
+        }
+        //If user chooses to disconnect
+        if(chosenPeerName.equalsIgnoreCase(DISCONNECT)){
+            System.out.println("Disconnecting...");
+            //Disconnect from the server
+            disconnectFromServer();
+            System.exit(0);
         }
 
         //Find the right peer
@@ -165,13 +207,38 @@ public class Chat {
         return null;
     }
 
-    //Get list of peers from server
-    public static void getPeers() throws IOException {
-        //Get the URL
-        URL url = new URL(SERVER_URL);
+    //Update the status on the server
+    public static void connectToServer() throws IOException {
+        //Get the string
+        String userString = "{\"name\": \"" + name + "\", \"externalAddress\": \"" + hostExternalAddress.getHostAddress()
+                            +  "\", \"externalPort\": \"" + hostExternalPort
+                            +  "\", \"internalAddress\": \"" + hostInternalAddress.getHostAddress()
+                            +  "\", \"internalPort\": \"" + hostInternalPort
+                            +  "\"}";
 
-        //Get the Jackson Mapper ready
-        ObjectMapper mapper = new ObjectMapper();
-        peers = mapper.readValue(url, Peer[].class);
+        //Set up the URL connection
+        URL url = new URL(SERVER_URL);
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        //Write the data to the server
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+        writer.write(userString);
+        writer.flush();
+        writer.close();
+
+        //Call this to actually do the transaction
+        connection.getResponseCode();
+    }
+
+    public static void disconnectFromServer() throws IOException{
+        URL url = new URL(SERVER_URL + user.getId());
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.setRequestMethod("DELETE");
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        connection.getResponseCode();
     }
 }
