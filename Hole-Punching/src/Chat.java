@@ -198,7 +198,7 @@ public class Chat {
 
         //Find the right peer
         for(Peer peer : peers){
-            if(chosenPeerName.equalsIgnoreCase(peer.getName())){
+            if(chosenPeerName.equals(peer.getName())){
                 return peer;
             }
         }
