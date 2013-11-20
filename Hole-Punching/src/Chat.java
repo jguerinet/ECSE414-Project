@@ -20,7 +20,7 @@ public class Chat {
 	public static final String STUN_SERVER_URL = "http://stun.l.google.com";
 	public static final int STUN_SERVER_PORT = 19302;
     public static final int LOCAL_PORT = 56144;
-    public static final boolean TEST_MODE  = true;
+    public static final boolean TEST_MODE  = false;
 
     //gets assigned either TEST OR PROD SERVER URL
     public static String SERVER_URL;
