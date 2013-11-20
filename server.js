@@ -126,7 +126,7 @@ var SampleApp = function() {
 
         self.routes['/'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
-            res.send("Hello World like a bau5");
+            res.send("Hello World");
         };
         self.routes
     };
@@ -230,6 +230,21 @@ var SampleApp = function() {
                     res.send(req.body);
                 }
             });
+        });
+
+        self.app.get('/exterminate',function(req,res){
+            var id = req.params.id;
+            console.log('Deleting all peers');
+            /*db.peers.remove({safe:true}, function(err, result) {
+                if (err) {
+                    res.send({'error':'An error has occurred - ' + err});
+                } else {
+                    console.log('' + result + ' document(s) deleted');
+                    res.send(req.body);
+                }
+            });*/
+
+            db.peers.remove();
         });
 
     };
