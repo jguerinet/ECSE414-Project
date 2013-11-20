@@ -92,6 +92,8 @@ public class Chat {
 
         connectToServer();
 
+        getPeers();
+
         //Get the chosen peer
         Peer chosenPeer = null;
         while(chosenPeer == null){
