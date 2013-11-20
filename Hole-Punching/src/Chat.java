@@ -47,9 +47,6 @@ public class Chat {
         //Set up the JSON mapper
         mapper = new ObjectMapper();
 
-        //Get peers
-        getPeers();
-
         boolean validName = false;
 
         while(!validName){
@@ -57,6 +54,7 @@ public class Chat {
             //Get the user's name
             System.out.print("Please enter your name: ");
             name = reader.readLine();
+            getPeers();
             for(Peer peer : peers){
                 if(name.equals(peer.getName())){
                     System.out.println("Error : name already taken, please try again.");
