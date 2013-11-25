@@ -15,10 +15,12 @@ import java.net.URL;
 
 
 public class Chat {
-    public static final String PROD_SERVER_URL = "http://chat-sigvaria.rhcloud.com/peers/";
-    public static final String TEST_SERVER_URL = "http://localhost:8080/peers/";
-	public static final String STUN_SERVER_URL = "http://stun.l.google.com";
-	public static final int STUN_SERVER_PORT = 19302;
+    public static final String PROD_SERVER_URL = "http://chat-sigvaria.rhcloud.com/";
+    public static final String TEST_SERVER_URL = "http://localhost:8080/";
+    public static final String PEERS_URL = "peers/";
+    public static final String CALLS_URL = "peers/";
+    public static final String STUN_SERVER_URL = "http://stun.l.google.com";
+    public static final int STUN_SERVER_PORT = 19302;
     public static final int LOCAL_PORT = 56144;
     public static final boolean TEST_MODE  = false;
 
@@ -34,6 +36,8 @@ public class Chat {
     static String name;
     static Peer[] peers;
     static Peer user;
+
+    static boolean incomingCall = false;
 
     static InetAddress destinationAddress, hostInternalAddress, hostExternalAddress;
     static int destinationPort, hostInternalPort, hostExternalPort;
@@ -107,6 +111,64 @@ public class Chat {
             chosenPeer = choosePeer();
         }
 
+        connectToPeer(chosenPeer);
+	}
+
+    //Get list of peers from server
+    public static void getPeers() throws IOException {
+        //Get the URL
+        URL url = new URL(SERVER_URL + PEERS_URL);
+
+        peers = mapper.readValue(url, Peer[].class);
+
+        //Find out which peer maps to the current user
+        for(Peer peer : peers){
+            if(peer.getName().equals(name)){
+                user = peer;
+                break;
+            }
+        }
+    }
+
+    //Get a peer from the list of peers
+    public static Peer choosePeer() throws IOException{
+        //Show list of peers
+        System.out.println("Type the name of the peer you want to connect with or 'refresh' to refresh the list: ");
+        System.out.println("Type 'Exit' to exit the program");
+        for(Peer peer : peers){
+            if(peer.getName() != null && !peer.getName().equals(user.getName())){
+                System.out.println("- " + peer.getName());
+            }
+        }
+
+        System.out.print("Chosen Peer: ");
+        String chosenPeerName = reader.readLine().trim();
+
+        if(chosenPeerName.equalsIgnoreCase("refresh")){
+            System.out.println("Refreshing...");
+            getPeers();
+            return null;
+        }
+        //If user chooses to disconnect
+        if(chosenPeerName.equalsIgnoreCase(DISCONNECT)){
+            System.out.println("Disconnecting...");
+            //Disconnect from the server
+            disconnectFromServer();
+            System.exit(0);
+        }
+
+        //Find the right peer
+        for(Peer peer : peers){
+            if(chosenPeerName.equals(peer.getName())){
+                return peer;
+            }
+        }
+
+        System.out.println("Name not found. Please try again.");
+        return null;
+    }
+
+    public static void connectToPeer(Peer chosenPeer) throws IOException {
         /* DESTINATION ADDRESS SET-UP */
 
         //Check if you are behind the same NAT
@@ -160,63 +222,9 @@ public class Chat {
                 communicator.sendMessage(message);
             }
         }
-	}
-
-    //Get list of peers from server
-    public static void getPeers() throws IOException {
-        //Get the URL
-        URL url = new URL(SERVER_URL);
-
-        peers = mapper.readValue(url, Peer[].class);
-
-        //Find out which peer maps to the current user
-        for(Peer peer : peers){
-            if(peer.getName().equals(name)){
-                user = peer;
-                break;
-            }
-        }
     }
 
-    //Get a peer from the list of peers
-    public static Peer choosePeer() throws IOException{
-        //Show list of peers
-        System.out.println("Type the name of the peer you want to connect with or 'refresh' to refresh the list: ");
-        System.out.println("Type 'Exit' to exit the program");
-        for(Peer peer : peers){
-            if(peer.getName() != null && !peer.getName().equals(user.getName())){
-                System.out.println("- " + peer.getName());
-            }
-        }
-
-        System.out.print("Chosen Peer: ");
-        String chosenPeerName = reader.readLine().trim();
-
-        if(chosenPeerName.equalsIgnoreCase("refresh")){
-            System.out.println("Refreshing...");
-            getPeers();
-            return null;
-        }
-        //If user chooses to disconnect
-        if(chosenPeerName.equalsIgnoreCase(DISCONNECT)){
-            System.out.println("Disconnecting...");
-            //Disconnect from the server
-            disconnectFromServer();
-            System.exit(0);
-        }
-
-        //Find the right peer
-        for(Peer peer : peers){
-            if(chosenPeerName.equals(peer.getName())){
-                return peer;
-            }
-        }
-
-        System.out.println("Name not found. Please try again.");
-        return null;
-    }
-
-    //Update the status on the server
+    //Connect to the server
     public static void connectToServer() throws IOException {
         //Get the string
         String userString = "{\"name\": \"" + name + "\", \"externalAddress\": \"" + hostExternalAddress.getHostAddress()
@@ -226,7 +234,7 @@ public class Chat {
                             +  "\"}";
 
         //Set up the URL connection
-        URL url = new URL(SERVER_URL);
+        URL url = new URL(SERVER_URL + PEERS_URL);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
@@ -243,11 +251,43 @@ public class Chat {
     }
 
     public static void disconnectFromServer() throws IOException{
-        URL url = new URL(SERVER_URL + user.getId());
+        URL url = new URL(SERVER_URL + PEERS_URL + user.getId());
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.setRequestMethod("DELETE");
         connection.setRequestProperty("Content-Type", "application/json");
 
         connection.getResponseCode();
+    }
+
+    //Thread that queries the server for any calls
+    public class CallThread extends Thread {
+        public boolean connected = false;
+
+        @Override
+        public void run(){
+            //Run this until we are connected
+            while(!connected){
+                try{
+                    //Get the URL
+                    URL url = new URL(SERVER_URL + CALLS_URL + user.getId());
+
+                    Peer peer = mapper.readValue(url, Peer.class);
+
+                    //Someone is trying to contact you
+                    if(peer != null){
+                        connected = true;
+                        Chat.connectToPeer(peer);
+                    }
+                    else{
+                        //Run this every second
+                        Thread.sleep(1000);
+                    }
+                }catch(IOException e){
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
