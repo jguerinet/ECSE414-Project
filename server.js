@@ -289,20 +289,22 @@ var SampleApp = function() {
 
              		for (var i = 0; i<docs.length;i++){
              			
-             			try {
+             			peerIds[i] = docs[i].sender;
+
+             			/*try {
 			               findThisID = new BSON.ObjectID(docs[i].sender);
 			               peerIds[i] = findThisID
 			            }
 			            catch (err)
 			            {
-			               console.log("CATCH-ERR: " + err);
+			               console.log(err);
 			               
-			            }
+			            }*/
              		}
              		console.log('PEER IDS:' + peerIds);
 
              		db.peers.find({'_id': {$in : peerIds}},function(err,docs){
-             			console.log("Docs: " + docs);
+
              			if (docs.length == 0) {
              				res.status(404).send('Not found');
              			};
