@@ -280,7 +280,6 @@ var SampleApp = function() {
     			res.send('Really Julien?');
             }*/
             if (success) {
-            	console.log(findThisID);
 
 	            callDb.calls.find({"receiver":id},function(err, docs) {
              		console.log(err);
@@ -290,7 +289,7 @@ var SampleApp = function() {
 
              		for (var i = 0; i<docs.length;i++){
              			
-             			peerIds[i] = docs[i].caller;
+             			peerIds[i] = docs[i].sender;
 
              			
              		}
