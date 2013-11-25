@@ -267,7 +267,8 @@ var SampleApp = function() {
             console.log('Retrieving call: ' + id);
             var findThisID;
             var success = true;
-            try 
+
+            /*try 
             {
                findThisID = new BSON.ObjectID(id);
             }
@@ -277,18 +278,27 @@ var SampleApp = function() {
                success = false;
                res.code = 400;
     			res.send('Really Julien?');
-            }
+            }*/
             if (success) {
-	            callDb.calls.findOne({'receiver':findThisID}, function(err, item) {
-	                if(!item){
-	                    console.log("call doesn't exist");
-	                    res.code = 404;
-	                    res.send(404);
-	                    //res.send("Peer does not exist.");
-	                }
-	                res.send(item);
-	           
-	            });
+            	console.log(findThisID);
+	            callDb.calls.find({"receiver":id},function(err, docs) {
+             		console.log(err);
+             		console.log(docs);
+             		//res.send(docs);
+             		var peerIds = new Array();
+
+             		for (var i = 0; i<docs.length;i++){
+             			peerIds[i] = docs[i].sender;
+             		}
+             		console.log('PEER IDS:' + peerIds);
+
+             		db.peers.find({'_id': {$in : peerIds}},function(err,docs){
+
+             			res.send(docs);
+             		});
+
+
+         		});
     		}
         });
         
@@ -337,6 +347,14 @@ var SampleApp = function() {
             });
 
         });
+
+        self.app.get('/api',function(req,res){
+
+        	res.code(404);
+        	res.send('Coming soon... use /clearcalltable to clear the calls.');
+           
+        });
+
 
 
     };
