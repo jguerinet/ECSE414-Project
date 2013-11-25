@@ -294,6 +294,10 @@ var SampleApp = function() {
 
              		db.peers.find({'_id': {$in : peerIds}},function(err,docs){
 
+             			if (docs.length == 0) {
+             				res.code = 404;
+             				res.send("");
+             			};
              			res.send(docs);
              		});
 
@@ -350,7 +354,7 @@ var SampleApp = function() {
 
         self.app.get('/api',function(req,res){
 
-        	res.code(404);
+        	res.code(204);
         	res.send('Coming soon... use /clearcalltable to clear the calls.');
            
         });
