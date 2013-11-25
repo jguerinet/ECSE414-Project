@@ -1,5 +1,7 @@
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 /**
  * Created with IntelliJ IDEA.
@@ -110,7 +112,7 @@ public class PacketCommunicator {
                         bothConnected = true;
                     }
                     else if(packetData.startsWith(DISCONNECT)){
-                        System.out.println("Peer has disconnected.");
+                        System.out.println(peerName + " has disconnected.");
                     }
                     //Normal message
                     else{
