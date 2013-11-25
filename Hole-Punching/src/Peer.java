@@ -15,8 +15,6 @@ public class Peer {
     private String externalPort;
     private String internalAddress;
     private String internalPort;
-    @JsonProperty("_id")
-    private String id;
     @JsonProperty("peer_id")
     private String peerId;
 
