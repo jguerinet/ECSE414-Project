@@ -44,7 +44,7 @@ var SampleApp = function() {
         var peers = db.collection('peers');
 
         callDb = mongojs(connection_string,['calls']);
-        var calls = callDb('calls');
+        var calls = callDb.collection('calls');
 
         // similar syntax as the Mongo command-line interface
         // log each of the first ten docs in the collection
@@ -260,9 +260,80 @@ var SampleApp = function() {
                 if (doc) { console.dir(doc);
                 res }
             });*/
-            callsDb.calls.find(function(error,docs) {
+            callDb.calls.find(function(error,docs) {
                 res.send(docs);
             });
+        });
+
+        self.app.get('/calls/:id',function(req,res){
+            var id = req.params.id;
+            console.log('Retrieving call: ' + id);
+            var findThisID;
+            try 
+            {
+               findThisID = new BSON.ObjectID(id);
+            }
+            catch (err)
+            {
+               console.log(err);
+            }
+            
+            callDb.calls.findOne({'_id':findThisID}, function(err, item) {
+                if(!item){
+                    console.log("call doesn't exist");
+                    res.code = 404;
+                    res.send(404);
+                    //res.send("Peer does not exist.");
+                }
+                res.send(item);
+           
+            });
+        });
+        
+        self.app.post('/calls', function(req, res) {
+            var call = req.body;
+            console.log('Adding call: ' + JSON.stringify(call));
+            callDb.calls.insert(call, {safe:true}, function(err, result) {
+                if (err) {
+                    res.send({'error':'An error has occurred'});
+                } else {
+                    console.log('Success: ' + JSON.stringify(result[0]));
+                    res.send(result[0]);
+                }
+            });
+        });
+        
+
+
+        self.app.delete('/calls/:id', function(req, res) {
+            var id = req.params.id;
+            console.log('Deleting call: ' + id);
+            callDb.calls.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
+                if (err) {
+                    res.send({'error':'An error has occurred - ' + err});
+                } else {
+                    console.log('' + result + ' document(s) deleted');
+                    res.send(req.body);
+                }
+            });
+        });
+
+        self.app.get('/clearcalltable',function(req,res){
+            var id = req.params.id;
+            console.log('Deleting all calls');
+            /*db.peers.remove({safe:true}, function(err, result) {
+                if (err) {
+                    res.send({'error':'An error has occurred - ' + err});
+                } else {
+                    console.log('' + result + ' document(s) deleted');
+                    res.send(req.body);
+                }
+            });*/
+
+            callDb.calls.remove(function() {
+                res.send('Deleted All Calls');
+            });
+
         });
 
 
