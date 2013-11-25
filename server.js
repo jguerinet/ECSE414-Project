@@ -332,7 +332,7 @@ var SampleApp = function() {
         self.app.delete('/calls/:id', function(req, res) {
             var id = req.params.id;
             console.log('Deleting call: ' + id);
-            callDb.calls.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
+            callDb.calls.remove({'peer_id':id}, {safe:true}, function(err, result) {
                 if (err) {
                     res.send({'error':'An error has occurred - ' + err});
                 } else {
