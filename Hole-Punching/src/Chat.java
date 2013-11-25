@@ -179,6 +179,8 @@ public class Chat {
             if(chosenPeerName.equals(peer.getName())){
                 //Register a call to him
                 makeCallToPeer(peer);
+                //Stop listening for calls
+                incomingCallsThread.stopThread();
                 return peer;
             }
         }
@@ -272,6 +274,7 @@ public class Chat {
                             +  "\", \"externalPort\": \"" + hostExternalPort
                             +  "\", \"internalAddress\": \"" + hostInternalAddress.getHostAddress()
                             +  "\", \"internalPort\": \"" + hostInternalPort
+                            +  "\", \"peer_id\" : \"" + name
                             +  "\"}";
 
         //Set up the URL connection
@@ -336,6 +339,10 @@ public class Chat {
 
         public Peer hasCall(){
             return this.callingPeer;
+        }
+
+        public void stopThread(){
+            this.hasCall = true;
         }
     }
 }

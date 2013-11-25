@@ -17,6 +17,8 @@ public class Peer {
     private String internalPort;
     @JsonProperty("_id")
     private String id;
+    @JsonProperty("peer_id")
+    private String peerId;
 
     public Peer(){}
 
@@ -50,7 +52,7 @@ public class Peer {
     }
 
     public String getId(){
-        return this.id;
+        return this.peerId;
     }
 
     public void setName(String name){
@@ -74,6 +76,6 @@ public class Peer {
     }
 
     public void setId(String id){
-        this.id = id;
+        this.peerId = id;
     }
 }
