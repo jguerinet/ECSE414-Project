@@ -354,7 +354,7 @@ var SampleApp = function() {
 
         self.app.get('/api',function(req,res){
 
-        	res.code(204);
+        	res.code = 204;
         	res.send('Coming soon... use /clearcalltable to clear the calls.');
            
         });
