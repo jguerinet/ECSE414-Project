@@ -18,7 +18,7 @@ public class Chat {
     public static final String PROD_SERVER_URL = "http://chat-sigvaria.rhcloud.com/";
     public static final String TEST_SERVER_URL = "http://localhost:8080/";
     public static final String PEERS_URL = "peers/";
-    public static final String CALLS_URL = "peers/";
+    public static final String CALLS_URL = "calls/";
     public static final String STUN_SERVER_URL = "http://stun.l.google.com";
     public static final int STUN_SERVER_PORT = 19302;
     public static final int LOCAL_PORT = 56144;
@@ -99,7 +99,12 @@ public class Chat {
 
         connectToServer();
 
+        //This will set the user peer
         getPeers();
+
+        //Start the call thread
+        incomingCallsThread = new CallThread();
+        incomingCallsThread.start();
 
         //Get the chosen peer
         Peer chosenPeer = null;
@@ -172,12 +177,39 @@ public class Chat {
         //Find the right peer
         for(Peer peer : peers){
             if(chosenPeerName.equals(peer.getName())){
+                //Register a call to him
+                makeCallToPeer(peer);
                 return peer;
             }
         }
 
         System.out.println("Name not found. Please try again.");
         return null;
+    }
+
+    //Method registers a call to given peer on the server
+    public static void makeCallToPeer(Peer chosenPeer)throws IOException{
+        //Get the string
+        String callString = "{"
+                + "\"sender\": \"" + user.getId()
+                + "\", \"receiver\": \"" + chosenPeer.getId()
+                + "\"}";
+
+        //Set up the URL connection
+        URL url = new URL(SERVER_URL + CALLS_URL);
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        //Write the data to the server
+        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+        writer.write(callString);
+        writer.flush();
+        writer.close();
+
+        //Call this to actually do the transaction
+        connection.getResponseCode();
     }
 
     public static void connectToPeer(Peer chosenPeer) throws IOException {
@@ -210,9 +242,6 @@ public class Chat {
         //Keep on trying to connect to the peer
         while(!connected){
             connected = communicator.connectToClient(chosenPeer.getName());
-            if(!connected){
-                System.out.println("Connection Failed. Retrying...");
-            }
         }
 
         System.out.println("Connected to " + chosenPeer.getName());
@@ -272,7 +301,7 @@ public class Chat {
     }
 
     //Thread that queries the server for any calls
-    public class CallThread extends Thread {
+    public static class CallThread extends Thread {
         private boolean hasCall = false;
         private Peer callingPeer ;
 
@@ -283,11 +312,13 @@ public class Chat {
                 try{
                     //Get the URL
                     URL url = new URL(SERVER_URL + CALLS_URL + user.getId());
+                    HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    if(connection.getContentLength() != 0){
+                        Peer peer = mapper.readValue(url, Peer.class);
 
-                    Peer peer = mapper.readValue(url, Peer.class);
-
-                    //Someone is trying to contact you
-                    if(peer != null){
+                        //Someone is trying to contact you
                         hasCall = true;
                         this.callingPeer = peer;
                     }
