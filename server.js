@@ -151,10 +151,7 @@ var SampleApp = function() {
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }
-        self.app.get('/test',function(req,res){
-            console.log("test worked");
-            res.send("sup");
-        });
+        
         
         self.app.get('/peers', function(req,res){
             console.log('Display all peers');
@@ -269,6 +266,7 @@ var SampleApp = function() {
             var id = req.params.id;
             console.log('Retrieving call: ' + id);
             var findThisID;
+            var success = true;
             try 
             {
                findThisID = new BSON.ObjectID(id);
@@ -276,18 +274,22 @@ var SampleApp = function() {
             catch (err)
             {
                console.log(err);
+               success = false;
+               res.code = 400;
+    			res.send('Really Julien?');
             }
-            
-            callDb.calls.findOne({'_id':findThisID}, function(err, item) {
-                if(!item){
-                    console.log("call doesn't exist");
-                    res.code = 404;
-                    res.send(404);
-                    //res.send("Peer does not exist.");
-                }
-                res.send(item);
-           
-            });
+            if (success) {
+	            callDb.calls.findOne({'receiver':findThisID}, function(err, item) {
+	                if(!item){
+	                    console.log("call doesn't exist");
+	                    res.code = 404;
+	                    res.send(404);
+	                    //res.send("Peer does not exist.");
+	                }
+	                res.send(item);
+	           
+	            });
+    		}
         });
         
         self.app.post('/calls', function(req, res) {
