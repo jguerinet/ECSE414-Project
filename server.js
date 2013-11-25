@@ -128,7 +128,7 @@ var SampleApp = function() {
 
         self.routes['/'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
-            res.send("Hello World");
+            res.send("Hello ECSE-414");
         };
         //self.routes
     };
@@ -288,12 +288,21 @@ var SampleApp = function() {
              		var peerIds = new Array();
 
              		for (var i = 0; i<docs.length;i++){
-             			peerIds[i] = docs[i].sender;
+             			
+             			try {
+			               findThisID = new BSON.ObjectID(docs[i].sender);
+			               peerIds[i] = findThisID
+			            }
+			            catch (err)
+			            {
+			               console.log("CATCH-ERR: " + err);
+			               
+			            }
              		}
              		console.log('PEER IDS:' + peerIds);
 
              		db.peers.find({'_id': {$in : peerIds}},function(err,docs){
-
+             			console.log("Docs: " + docs);
              			if (docs.length == 0) {
              				res.status(404).send('Not found');
              			};
