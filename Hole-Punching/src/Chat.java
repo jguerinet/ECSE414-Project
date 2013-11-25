@@ -66,7 +66,7 @@ public class Chat {
             validName = true;
             //Get the user's name
             System.out.print("Please enter your name: ");
-            name = reader.readLine();
+            name = reader.readLine().trim();
             getPeers();
             for(Peer peer : peers){
                 if(name.equals(peer.getName())){
