@@ -315,12 +315,12 @@ public class Chat {
                     HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                     connection.setRequestMethod("GET");
                     connection.setRequestProperty("Content-Type", "application/json");
-                    if(connection.getContentLength() != 0){
-                        Peer peer = mapper.readValue(url, Peer.class);
+                    if(connection.getResponseCode() == 200){
+                        Peer[] peers = mapper.readValue(url, Peer[].class);
 
                         //Someone is trying to contact you
                         hasCall = true;
-                        this.callingPeer = peer;
+                        this.callingPeer = peers[0];
                     }
                     else{
                         //Run this every second
