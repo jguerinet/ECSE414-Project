@@ -37,7 +37,7 @@ public class Chat {
     static Peer[] peers;
     static Peer user;
 
-    static boolean incomingCall = false;
+    static CallThread incomingCallsThread;
 
     static InetAddress destinationAddress, hostInternalAddress, hostExternalAddress;
     static int destinationPort, hostInternalPort, hostExternalPort;
@@ -95,10 +95,6 @@ public class Chat {
         hostExternalAddress = publicServerAddress.getAddress();
         hostExternalPort = publicServerAddress.getPort();
 
-        //TODO : DELETE
-        System.out.println("Public Address : " + hostExternalAddress);
-        System.out.println("Public Port: " + hostExternalPort);
-
         /* SERVER CONNECTION */
 
         connectToServer();
@@ -142,6 +138,22 @@ public class Chat {
         }
 
         System.out.print("Chosen Peer: ");
+
+        //Constantly check if a peer is trying to connect to you
+        //Every half a second
+        while (!reader.ready()) {
+            Peer callingPeer = incomingCallsThread.hasCall();
+            //If there is a calling peer, return it
+            if(callingPeer != null){
+                System.out.println("Incoming call...");
+                return callingPeer;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         String chosenPeerName = reader.readLine().trim();
 
         if(chosenPeerName.equalsIgnoreCase("refresh")){
@@ -261,12 +273,13 @@ public class Chat {
 
     //Thread that queries the server for any calls
     public class CallThread extends Thread {
-        public boolean connected = false;
+        private boolean hasCall = false;
+        private Peer callingPeer ;
 
         @Override
         public void run(){
             //Run this until we are connected
-            while(!connected){
+            while(!hasCall){
                 try{
                     //Get the URL
                     URL url = new URL(SERVER_URL + CALLS_URL + user.getId());
@@ -275,8 +288,8 @@ public class Chat {
 
                     //Someone is trying to contact you
                     if(peer != null){
-                        connected = true;
-                        Chat.connectToPeer(peer);
+                        hasCall = true;
+                        this.callingPeer = peer;
                     }
                     else{
                         //Run this every second
@@ -288,6 +301,10 @@ public class Chat {
                     e.printStackTrace();
                 }
             }
+        }
+
+        public Peer hasCall(){
+            return this.callingPeer;
         }
     }
 }
