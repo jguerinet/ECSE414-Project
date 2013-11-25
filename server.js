@@ -295,8 +295,7 @@ var SampleApp = function() {
              		db.peers.find({'_id': {$in : peerIds}},function(err,docs){
 
              			if (docs.length == 0) {
-             				res.code = 404;
-             				res.send("404");
+             				res.status(404).send('Not found');
              			};
              			res.send(docs);
              		});
