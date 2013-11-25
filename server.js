@@ -301,9 +301,10 @@ var SampleApp = function() {
 			               
 			            }*/
              		}
+
              		console.log('PEER IDS:' + peerIds);
 
-             		db.peers.find({'_id': {$in : peerIds}},function(err,docs){
+             		db.peers.find({'_id': {$in : peerIds}}).toArray(function(err,docs){
 
              			if (docs.length == 0) {
              				res.status(404).send('Not found');
