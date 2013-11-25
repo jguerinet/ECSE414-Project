@@ -7,6 +7,7 @@ var mongo = require('mongodb');
 var BSON = mongo.BSONPure;
 //var peer = require('./routes/peers');
 var db;
+var callDb;
 /**
  *  Define the sample application.
  */
@@ -41,6 +42,10 @@ var SampleApp = function() {
 
         db = mongojs(connection_string, ['peers']);
         var peers = db.collection('peers');
+
+        callDb = mongojs(connection_string,['calls']);
+        var calls = callDb('calls');
+
         // similar syntax as the Mongo command-line interface
         // log each of the first ten docs in the collection
         db.peers.find({}).limit(10).forEach(function(err, doc) {
@@ -119,16 +124,13 @@ var SampleApp = function() {
     self.createRoutes = function() {
         self.routes = { };
 
-        self.routes['/asciimo'] = function(req, res) {
-            var link = "http://i.imgur.com/kmbjB.png";
-            res.send("<html><body><img src='" + link + "'></body></html>");
-        };
+        
 
         self.routes['/'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
             res.send("Hello World");
         };
-        self.routes
+        //self.routes
     };
 
 
@@ -153,6 +155,7 @@ var SampleApp = function() {
             console.log("test worked");
             res.send("sup");
         });
+        
         self.app.get('/peers', function(req,res){
             console.log('Display all peers');
             /*db.peers.find({}).limit(10).forEach(function(err, doc) {
@@ -249,6 +252,19 @@ var SampleApp = function() {
             });
 
         });
+
+        self.app.get('/calls', function(req,res){
+            console.log('Display all calls');
+            /*db.peers.find({}).limit(10).forEach(function(err, doc) {
+                if (err) throw err;
+                if (doc) { console.dir(doc);
+                res }
+            });*/
+            callsDb.calls.find(function(error,docs) {
+                res.send(docs);
+            });
+        });
+
 
     };
 
