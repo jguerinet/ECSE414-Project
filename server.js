@@ -296,7 +296,7 @@ var SampleApp = function() {
 
              			if (docs.length == 0) {
              				res.code = 404;
-             				res.send("");
+             				res.send("404");
              			};
              			res.send(docs);
              		});
@@ -354,7 +354,7 @@ var SampleApp = function() {
 
         self.app.get('/api',function(req,res){
 
-        	res.code = 204;
+        	res.code = 404;
         	res.send('Coming soon... use /clearcalltable to clear the calls.');
            
         });
