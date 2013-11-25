@@ -249,6 +249,9 @@ public class Chat {
         System.out.println("Connected to " + chosenPeer.getName());
         System.out.println("Type 'Exit' to exit the program");
 
+        //Delete the call from the server
+        removeCall();
+
         //Send the messages
         while(true){
             String message = reader.readLine();
@@ -296,6 +299,16 @@ public class Chat {
 
     public static void disconnectFromServer() throws IOException{
         URL url = new URL(SERVER_URL + PEERS_URL + user.getId());
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        connection.setRequestMethod("DELETE");
+        connection.setRequestProperty("Content-Type", "application/json");
+
+        connection.getResponseCode();
+    }
+
+    //Remove a call once it is established
+    public static void removeCall() throws IOException{
+        URL url = new URL(SERVER_URL + CALLS_URL + user.getId());
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
         connection.setRequestMethod("DELETE");
         connection.setRequestProperty("Content-Type", "application/json");
