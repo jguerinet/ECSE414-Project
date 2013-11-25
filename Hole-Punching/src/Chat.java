@@ -274,7 +274,7 @@ public class Chat {
                             +  "\", \"externalPort\": \"" + hostExternalPort
                             +  "\", \"internalAddress\": \"" + hostInternalAddress.getHostAddress()
                             +  "\", \"internalPort\": \"" + hostInternalPort
-                            +  "\", \"peer_id\" : \"" + name
+                            +  "\", \"peer_id\" : \"" + name.replace(" ", "_")
                             +  "\"}";
 
         //Set up the URL connection
