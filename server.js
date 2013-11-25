@@ -178,11 +178,11 @@ var SampleApp = function() {
                console.log(err);
             }
             
-            db.peers.findOne({'_id':findThisID}, function(err, item) {
+            db.peers.findOne({'peer_id': id }, function(err, item) {
                 if(!item){
                     console.log("peer doesn't exist");
                     res.code = 404;
-                    res.send(404);
+                    res.status(404).send('Peer does not exists');
                     //res.send("Peer does not exist.");
                 }
                 res.send(item);
@@ -207,7 +207,7 @@ var SampleApp = function() {
             var peer = req.body;
             console.log('Updating peer: ' + id);
             console.log(JSON.stringify(peer));
-            db.peers.update({'_id':new BSON.ObjectID(id)}, peer, {safe:true}, function(err, result) {
+            db.peers.update({'peer_id':id}, peer, {safe:true}, function(err, result) {
                 if (err) {
                     console.log('Error updating peer: ' + err);
                     res.send({'error':'An error has occurred'});
@@ -222,7 +222,7 @@ var SampleApp = function() {
         self.app.delete('/peers/:id', function(req, res) {
             var id = req.params.id;
             console.log('Deleting peer: ' + id);
-            db.peers.remove({'_id':new BSON.ObjectID(id)}, {safe:true}, function(err, result) {
+            db.peers.remove({'peer_id':id}, {safe:true}, function(err, result) {
                 if (err) {
                     res.send({'error':'An error has occurred - ' + err});
                 } else {
@@ -281,6 +281,7 @@ var SampleApp = function() {
             }*/
             if (success) {
             	console.log(findThisID);
+
 	            callDb.calls.find({"receiver":id},function(err, docs) {
              		console.log(err);
              		console.log(docs);
@@ -289,32 +290,29 @@ var SampleApp = function() {
 
              		for (var i = 0; i<docs.length;i++){
              			
-             			peerIds[i] = docs[i].sender;
+             			peerIds[i] = docs[i].caller;
 
-             			/*try {
-			               findThisID = new BSON.ObjectID(docs[i].sender);
-			               peerIds[i] = findThisID
-			            }
-			            catch (err)
-			            {
-			               console.log(err);
-			               
-			            }*/
+             			
              		}
 
+             	
+			        //console.log('finding this id: ' +findThisID);
              		console.log('PEER IDS:' + peerIds);
 
-             		db.peers.find({'_id': {$in : peerIds}}).toArray(function(err,docs){
+             		db.peers.find({'peer_id': {$in : peerIds}}).toArray(function(err,docs){
+             		//db.peers.findOne({'peer_id' $in : peerIds}, function(err, item) {
+		               if (docs.length == 0) {
+		               	res.status(404).send('Peer not found');
+		               }else{
+		               	res.send(docs);	
+		               }
 
-             			if (docs.length == 0) {
-             				res.status(404).send('Not found');
-             			};
-             			res.send(docs);
-             		});
+		            });
+           
+	            });
 
-
-         		});
     		}
+
         });
         
         self.app.post('/calls', function(req, res) {
