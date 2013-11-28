@@ -141,10 +141,12 @@ var SampleApp = function() {
     self.initializeServer = function() {
         self.createRoutes();
         self.app = express();
+        var html_dir = './html/';
 
         self.app.configure(function () {
             self.app.use(express.logger('dev'));     /* 'default', 'short', 'tiny', 'dev' */
             self.app.use(express.bodyParser());
+
         });
 
         //  Add handlers for the app (from the routes).
@@ -362,8 +364,8 @@ var SampleApp = function() {
 
         self.app.get('/api',function(req,res){
 
-        	res.code = 404;
-        	res.send('Coming soon... use /clearcalltable to clear the calls.');
+
+            res.sendfile('api.html');
            
         });
 

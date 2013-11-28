@@ -1,0 +1,55 @@
+<html>
+  <head>
+    <title>Chat - API</title>
+  </head>
+  <body bgcolor=white>
+
+    <table border="0" cellpadding="10">
+      <tr>
+        
+        <td>
+          <h1>SERVER</h1>
+        </td>
+      </tr>
+    </table>
+
+    <h3>Schemas</h3>
+
+    <p>Peer<br><br>
+    {<br>
+      peer_id: 'johnsmith', <br>
+      externalAddress:'69.35.324.43',<br>
+      externalPort:'23445',<br>
+      internalAddress:'192.168.2.20',<br>
+      internalPort:'56144'<br>
+    }</p>
+
+     <p>Call<br><br>
+    {<br>
+      sender:'johnsmith',<br>
+      receiver:'janesmith'<br>
+    }</p>
+
+
+
+
+    <h3>Registering as a Peer</h3>
+    <p>Use the following HTTP requests to register as a peer:
+    <ul>
+      <li><b>GET</b> /peers/   -> Returns the list of registered peers.
+      <li><b>GET</b> /peers/%peer_id   -> Returns specific peer.
+      <li><b>POST</b> /peers/   -> Adds a new peer to table. The peer's properties are sent as JSON in the request body.
+      <li><b>DELETE</b> /peers/%peer_id   -> Returns specific peer.
+    </ul></p>
+
+    <h3>Registering a Call</h3>
+    <p>Use the following HTTP requests to initiate a call with another peer:
+    <ul>
+      <li><b>GET</b> /calls/   -> Returns the list of existing calls.
+      <li><b>GET</b> /calls/%peer_id   -> Returns any peers that have added calls to the call table for which peer_id is the receiver. Queried by client when client is idle.
+      <li><b>POST</b> /calls/   -> Adds a new call to the call table. Call properites are sent as JSON in the request body.
+      <li><b>DELETE</b> /calls/%peer_id   -> Removes any calls from the calltable for which peer_id is the receiver
+    </ul></p>
+
+  </body>
+</html>
