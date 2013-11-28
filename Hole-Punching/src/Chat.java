@@ -62,6 +62,9 @@ public class Chat {
 
         /* STUN SERVER CONNECTION */
 
+        System.out.println("Connecting to STUN Server " + STUN_SERVER_URL + " on port " + STUN_SERVER_PORT
+                + " to get public IP Address and Port...");
+
 		//Set up the wrapper
         IceUdpSocketWrapper socketWrapper = new IceUdpSocketWrapper(socket);
 
@@ -78,6 +81,10 @@ public class Chat {
 		TransportAddress publicServerAddress = detector.getMappingFor(socketWrapper);
         hostExternalAddress = publicServerAddress.getAddress();
         hostExternalPort = publicServerAddress.getPort();
+
+        System.out.println("External IP Address and Port Acquired from STUN Server" +
+                "\nPublic IP Address: " + hostExternalAddress.getHostAddress() +
+                "\nPublic Port: " + hostExternalPort);
 
         /* SERVER CONNECTION */
 
@@ -272,6 +279,8 @@ public class Chat {
 
     //Connect to the server
     public static void connectToServer() throws IOException {
+        System.out.println("Sending private and public IP addresses and ports to P2P Chat server...");
+
         //Get the string
         String userString = "{\"name\": \"" + name + "\", \"externalAddress\": \"" + hostExternalAddress.getHostAddress()
                             +  "\", \"externalPort\": \"" + hostExternalPort
