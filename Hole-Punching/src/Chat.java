@@ -60,22 +60,6 @@ public class Chat {
         //Set up the JSON mapper
         mapper = new ObjectMapper();
 
-        boolean validName = false;
-
-        while(!validName){
-            validName = true;
-            //Get the user's name
-            System.out.print("Please enter your name: ");
-            name = reader.readLine().trim();
-            getPeers();
-            for(Peer peer : peers){
-                if(name.equals(peer.getName())){
-                    System.out.println("Error : name already taken, please try again.");
-                    validName = false;
-                }
-            }
-        }
-
         /* STUN SERVER CONNECTION */
 
 		//Set up the wrapper
@@ -96,6 +80,22 @@ public class Chat {
         hostExternalPort = publicServerAddress.getPort();
 
         /* SERVER CONNECTION */
+
+        boolean validName = false;
+
+        while(!validName){
+            validName = true;
+            //Get the user's name
+            System.out.print("Please enter your name: ");
+            name = reader.readLine().trim();
+            getPeers();
+            for(Peer peer : peers){
+                if(name.equals(peer.getName())){
+                    System.out.println("Error : name already taken, please try again.");
+                    validName = false;
+                }
+            }
+        }
 
         connectToServer();
 
