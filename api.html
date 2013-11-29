@@ -2,20 +2,25 @@
   <head>
     <title>Chat - API</title>
   </head>
-  <body bgcolor=white>
+  <body bgcolor=white text >
 
-    <table border="0" cellpadding="10">
-      <tr>
-        
-        <td>
-          <h1>SERVER</h1>
-        </td>
-      </tr>
-    </table>
-
-    <h3>Schemas</h3>
-
-    <p>Peer<br><br>
+    <h1>Dicovery Server</h1>
+<font size=4px>
+    This server allows for the discovery of peers and the signalling of calls between peers running our chat client. 
+    <p>
+    This server was built using the following tools:
+    <table cellpadding="20">
+    <tr><td>
+    <img src="http://glennjones.github.io/node-introduction/assets/node-logo.png" alt="node" height="55" width="200">
+    </td><td>
+    <img src="http://upload.wikimedia.org/wikipedia/en/e/eb/MongoDB_Logo.png" alt="mongo" height="60" width="200">
+    </td><td>
+    <img src="http://www.opencloudconf.com/images/openshift_logo.png" alt="openshift" height="50" width="300">
+    </td>
+    </tr></table>
+    <h3>Collections</h3>
+    
+    <p>Peer Document<br><br>
     {<br>
       peer_id: 'johnsmith', <br>
       externalAddress:'69.35.324.43',<br>
@@ -24,7 +29,7 @@
       internalPort:'56144'<br>
     }</p>
 
-     <p>Call<br><br>
+     <p>Call Document<br><br>
     {<br>
       sender:'johnsmith',<br>
       receiver:'janesmith'<br>
@@ -39,7 +44,7 @@
       <li><b>GET</b> /peers/   -> Returns the list of registered peers.
       <li><b>GET</b> /peers/%peer_id   -> Returns specific peer.
       <li><b>POST</b> /peers/   -> Adds a new peer to table. The peer's properties are sent as JSON in the request body.
-      <li><b>DELETE</b> /peers/%peer_id   -> Returns specific peer.
+      <li><b>DELETE</b> /peers/%peer_id   -> Deletes peer with peer_id from peer table.
     </ul></p>
 
     <h3>Registering a Call</h3>
@@ -50,6 +55,6 @@
       <li><b>POST</b> /calls/   -> Adds a new call to the call table. Call properites are sent as JSON in the request body.
       <li><b>DELETE</b> /calls/%peer_id   -> Removes any calls from the calltable for which peer_id is the receiver
     </ul></p>
-
+    </font>
   </body>
 </html>
