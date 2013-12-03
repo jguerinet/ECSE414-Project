@@ -16,9 +16,9 @@ public class PacketCommunicator {
     private String peerName;
     private boolean connected, peerConnected, bothConnected;
 
-    private static String ACK_NOT_CONNECTED = "#!#DISCONNECTED";
-    private static String ACK_CONNECTED = "#!#CONNECTED";
-    private static String ACK_BOTH_CONNECTED = "#!#BOTHCONNECTED";
+    private static String SIGNAL_PACKET = "#!#DISCONNECTED";
+    private static String ACK_SIGNAL_PACKET = "#!#CONNECTED";
+    private static String ACK_PACKET = "#!#BOTHCONNECTED";
     private static String DISCONNECT = "#!#DISCONNECT";
 
     public PacketCommunicator(DatagramSocket socket, InetAddress address, int port){
@@ -45,14 +45,14 @@ public class PacketCommunicator {
         //With Connected if we are connected of not connected if we are not connected
         String ackMessage;
         if(connected && peerConnected){
-            ackMessage = ACK_BOTH_CONNECTED;
+            ackMessage = ACK_PACKET;
             bothConnected = true;
         }
         else if(connected){
-            ackMessage = ACK_CONNECTED;
+            ackMessage = ACK_SIGNAL_PACKET;
         }
         else{
-            ackMessage = ACK_NOT_CONNECTED;
+            ackMessage = SIGNAL_PACKET;
         }
 
         for(int i = 0; i < 5; i++){
@@ -100,15 +100,15 @@ public class PacketCommunicator {
                     String packetData = new String(receivedPacket.getData()).trim();
 
                     //You are now connected to the peer
-                    if(packetData.startsWith(ACK_NOT_CONNECTED)){
+                    if(packetData.startsWith(SIGNAL_PACKET)){
                         connected = true;
                     }
                     //Peer is connected to you
-                    else if(packetData.startsWith(ACK_CONNECTED)){
+                    else if(packetData.startsWith(ACK_SIGNAL_PACKET)){
                         connected = true;
                         peerConnected = true;
                     }
-                    else if(packetData.startsWith(ACK_BOTH_CONNECTED)){
+                    else if(packetData.startsWith(ACK_PACKET)){
                         bothConnected = true;
                     }
                     else if(packetData.startsWith(DISCONNECT)){
